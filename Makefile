@@ -1,5 +1,5 @@
 
 
-p:	p.c
-	gcc -o p p.c
-	./p
+main:	main.c
+	gcc -o main main.c
+
