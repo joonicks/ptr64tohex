@@ -17,9 +17,30 @@ x_libc_ptr64tohex:
 
 	Just a simple wrapper for libc sprintf("%016lX")
 
-c_noob_ptr64tohex: 000055C11CCDA0B0 (76 280 ~165)
-c_simp_ptr64tohex: 000055C11CCDA0B0 (26 34 ~29)
-c_nobr_ptr64tohex: 000055C11CCDA0B0 (18 24 ~20)
-a_noob_ptr64tohex: 000055C11CCDA0B0 (70 276 ~165)
-a_bext_ptr64tohex: 000055C11CCDA0B0 (24 32 ~29)
-a_nobr_ptr64tohex: 000055C11CCDA0B0 (16 22 ~20)
+c_noob_ptr64tohex:
+
+	What a noob might make without using any lookup table
+
+c_luta_ptr64tohex:
+
+	Based on a lookup table instead
+
+c_simp_ptr64tohex:
+
+	Simple loop based non lookup
+
+c_nobr_ptr64tohex:
+
+	Branchless, all low nibbles then all high nibbles done at once
+
+a_noob_ptr64tohex:
+
+	Equivalent to c_noob slightly tweaked non lookup
+
+a_bext_ptr64tohex:
+
+	Loop 1 nibble at a time using bextr instruction
+
+a_nobr_ptr64tohex:
+
+	Assembly version of c_nobr
