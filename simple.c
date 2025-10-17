@@ -4,9 +4,31 @@
 #include <string.h>
 
 /*
+**  Naive noob implementation in C
+*/
+void c_noob_ptr64tohex(char *dst, uint64_t value)
+{
+	uint8_t c;
+        char    *d;
+
+        dst[16] = 0;
+        d = &dst[15];
+        do
+        {
+                c = (value & 0xF);
+                if (c > 9)
+                    *(d--) = 'A' - 10 + c;
+                else
+                    *(d--) = '0' + c;
+                value = value >> 4;
+        }
+        while(d >= dst);
+}
+
+/*
 **  Simple Reference implementation in C
 */
-void simpc_ptr64tohex(char *dst, uint64_t value)
+void c_simp_ptr64tohex(char *dst, uint64_t value)
 {
 	uint32_t c;
 	char	*d;
@@ -23,24 +45,6 @@ void simpc_ptr64tohex(char *dst, uint64_t value)
 }
 
 /*
-**  Naive noob implementation in C
-*/
-void noobc_ptr64tohex(char *dst, uint64_t value)
-{
-	char	c,*d;
-
-	dst[15] = 0;
-	d = &dst[15];
-	do
-	{
-		c = (value & 0xF);
-		*(d--) = '0' + c + ((c > 9) ? 7 : 0);
-		value = value >> 4;
-	}
-	while(d >= dst);
-}
-
-/*
 ** Branchless implementation in C
 */
 union Mix {
@@ -48,7 +52,7 @@ union Mix {
     unsigned char pch[8];
 };
 
-void brless_ptr64tohex(char *dst, uint64_t value)
+void c_nobr_ptr64tohex(char *dst, uint64_t value)
 {
 	uint64_t a;
 	union Mix c;
