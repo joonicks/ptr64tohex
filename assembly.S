@@ -13,9 +13,8 @@ test:
 	ret
 
 /*
-** rdi = *p
-** rsi = char *pch
-** x = (((((nibble & 0x0F) + 0x06) & 0x30) * 7) >> 4) + nibble + 0x30;
+** arg 1: rdi = char *pch
+** arg 2: rsi = *p
 */
 	.globl	c_ptr64tohex
 	.type	c_ptr64tohex,@function
