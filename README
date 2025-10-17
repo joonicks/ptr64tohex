@@ -14,33 +14,35 @@ Normally the code would be (and the gcc compiler does a good job with);
 		char = '0' + a;
 
 x_libc_ptr64tohex:
-
+	avg ~120 clock cycles
 	Just a simple wrapper for libc sprintf("%016lX")
 
 c_noob_ptr64tohex:
-
+	avg ~160 clock cycles, unpredictable
 	What a noob might make without using any lookup table
 
 c_luta_ptr64tohex:
-
+	avg ~20 clock cycles, down to 16
 	Based on a lookup table instead
 
 c_simp_ptr64tohex:
-
+	avg ~28 clock cycles, down to 24
 	Simple loop based non lookup
 
 c_nobr_ptr64tohex:
-
+	avg ~20 clock cycles, down to 16
 	Branchless, all low nibbles then all high nibbles done at once
+	gcc compiler uses extra instructions to improve speed
 
 a_noob_ptr64tohex:
-
+	avg ~160 clock cycles, unpredictable
 	Equivalent to c_noob slightly tweaked non lookup
 
 a_bext_ptr64tohex:
-
+	avg ~27 clock cycles, down to 20
 	Loop 1 nibble at a time using bextr instruction
 
 a_nobr_ptr64tohex:
-
+	avg ~20 clock cycles, down to 16
 	Assembly version of c_nobr
+	Better ordering of instructions could improve speed
