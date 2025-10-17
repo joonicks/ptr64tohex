@@ -45,8 +45,9 @@ uint64_t rdtsc(void)
 /*
 ** Various C implementations (simple.c)
 */
-void c_simp_ptr64tohex(char *dst, uint64_t value);
 void c_noob_ptr64tohex(char *dst, uint64_t value);
+void c_luta_ptr64tohex(char *dst, uint64_t value);
+void c_simp_ptr64tohex(char *dst, uint64_t value);
 void c_nobr_ptr64tohex(char *dst, uint64_t value);
 
 /*
@@ -70,7 +71,7 @@ void bar(const char *name, hexfunc func, uint64_t value)
 	uint64_t r, t1, t2, sum;
 	uint32_t i, min, max, t;
 
-	for(min=-1,max=0,sum=0,i=1000;i>0;i--)
+	for(min=-1,max=0,sum=0,i=100000;i>0;i--)
 	{
 		r = rand64();t1 = rdtsc();
 		func(str,r);
@@ -79,13 +80,14 @@ void bar(const char *name, hexfunc func, uint64_t value)
 		if (t < min)min = t;
 	}
 	func(str,value);
-	fdwrite(1,"%s: %s (min %d, max %d, avg ~%d)\n",name,str,min,max,(sum/1000));
+	fdwrite(1,"%s: %s (min %d, max %d, avg ~%d)\n",name,str,min,max,(sum/100000));
 }
 
 void foo(uint64_t value)
 {
 	bar("     libc(%016lX)",x_libc_ptr64tohex,value);
 	bar("c_noob_ptr64tohex",c_noob_ptr64tohex,value);
+	bar("c_luta_ptr64tohex",c_luta_ptr64tohex,value);
 	bar("c_simp_ptr64tohex",c_simp_ptr64tohex,value);
 	bar("c_nobr_ptr64tohex",c_nobr_ptr64tohex,value);
 	bar("a_noob_ptr64tohex",a_noob_ptr64tohex,value);

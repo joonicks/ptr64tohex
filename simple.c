@@ -4,7 +4,7 @@
 #include <string.h>
 
 /*
-**  Naive noob implementation in C
+**  Naive noob implementation
 */
 void c_noob_ptr64tohex(char *dst, uint64_t value)
 {
@@ -26,7 +26,25 @@ void c_noob_ptr64tohex(char *dst, uint64_t value)
 }
 
 /*
-**  Simple Reference implementation in C
+** Conversion by lookup table
+*/
+void c_luta_ptr64tohex(char *dst, uint64_t value)
+{
+	uint8_t c;
+	char    *d;
+
+	dst[16] = 0;
+	d = &dst[15];
+	do
+	{
+		*(d--) = "0123456789ABCDEF"[(value & 0xF)];
+		value = value >> 4;
+	}
+	while(d >= dst);
+}
+
+/*
+**  Simple Reference implementation
 */
 void c_simp_ptr64tohex(char *dst, uint64_t value)
 {
