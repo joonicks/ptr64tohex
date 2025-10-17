@@ -56,6 +56,7 @@ void c_nobr_ptr64tohex(char *dst, uint64_t value);
 void a_bext_ptr64tohex(char *dst, uint64_t value);
 void a_noob_ptr64tohex(char *dst, uint64_t value);
 void a_nobr_ptr64tohex(char *dst, uint64_t value);
+void a_luta_ptr64tohex(char *dst, uint64_t value);
 
 char	str[100];
 
@@ -91,6 +92,7 @@ void foo(uint64_t value)
 	bar("c_simp_ptr64tohex",c_simp_ptr64tohex,value);
 	bar("c_nobr_ptr64tohex",c_nobr_ptr64tohex,value);
 	bar("a_noob_ptr64tohex",a_noob_ptr64tohex,value);
+	bar("a_luta_ptr64tohex",a_luta_ptr64tohex,value);
 	bar("a_bext_ptr64tohex",a_bext_ptr64tohex,value);
 	bar("a_nobr_ptr64tohex",a_nobr_ptr64tohex,value);
 
