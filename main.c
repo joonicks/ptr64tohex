@@ -4,124 +4,72 @@
 #include <string.h>
 
 int fdwrite(int fd, const char *format, ...);
+uint64_t test(uint64_t);
 
-/*
-**  Simple Reference implementation in C
-*/
-void a_ptr64tohex(void *p, char *dest)
+char binstr[100];
+
+char *bin2str(uint64_t n, int lim)
 {
-	uint64_t a;
-	char	c,*d;
+	uint64_t f;
+	int	i;
+	char	*p = binstr;
 
-	a = (uint64_t)p;
-	d = &dest[16];
-	*(d--) = 0;
-	do
+	f = 1;
+	f = f << (lim-1);
+	for(i=0;i<lim;i++)
 	{
-		c = (a & 0xF) + '0';
-		if (c > '9')
-			c += 'A' - '9' - 1;
-		*(d--) = c;
-		a = a >> 4;
+		*(p++) = ((f & n) == 0) ? '0' : '1';
+		f = f >> 1;
 	}
-	while(d >= dest);
+	*p = 0;
+	return(binstr);
 }
 
 /*
-** Branchless implementation in C
+** Various C implementations (simple.c)
 */
-union Mix {
-    uint64_t p;
-    unsigned char pch[8];
-};
-
-void b_ptr64tohex(void *p, char *dest)
-{
-	uint64_t	a;
-	union Mix	c;
-
-	a =  (uint64_t)p       & 0x0F0f0f0f0F0f0f0f;
-	c.p = (a + 0x0606060606060606) & 0x3030303030303030;
-	c.p = ((c.p * 7) >> 4) + a + 0x3030303030303030;
-	dest[1]  = c.pch[7];
-	dest[3]  = c.pch[6];
-	dest[5]  = c.pch[5];
-	dest[7]  = c.pch[4];
-	dest[9]  = c.pch[3];
-	dest[11] = c.pch[2];
-	dest[13] = c.pch[1];
-	dest[15] = c.pch[0];
-	a = ((uint64_t)p >> 4) & 0x0F0f0f0f0F0f0f0f;
-	c.p = (a + 0x0606060606060606) & 0x3030303030303030;
-	c.p = ((c.p * 7) >> 4) + a + 0x3030303030303030;
-	dest[0]  = c.pch[7];
-	dest[2]  = c.pch[6];
-	dest[4]  = c.pch[5];
-	dest[6]  = c.pch[4];
-	dest[8]  = c.pch[3];
-	dest[10] = c.pch[2];
-	dest[12] = c.pch[1];
-	dest[14] = c.pch[0];
-	dest[16] = 0;
-}
+void simpc_ptr64tohex(char *dst, uint64_t value);
+void noobc_ptr64tohex(char *dst, uint64_t value);
+void brless_ptr64tohex(char *dst, uint64_t value);
 
 /*
 ** Assembler implementation ptr64tohex.S
 */
-void c_ptr64tohex(void *p, char *dest);
+void c_ptr64tohex(char *dst, uint64_t value);
+void e_ptr64tohex(char *dst, uint64_t value);
+
+char	str[100];
+
+void foo(uint64_t value)
+{
+	fdwrite(1,"\n     libc(%%016lX): %016lX\n",value);
+
+	simpc_ptr64tohex(str,value);
+	fdwrite(1," simpc_ptr64tohex: %s\n",str);
+
+	noobc_ptr64tohex(str,value);
+	fdwrite(1," noobc_ptr64tohex: %s\n",str);
+
+	brless_ptr64tohex(str,value);
+	fdwrite(1,"brless_ptr64tohex: %s\n",str);
+
+	e_ptr64tohex(str,value);
+	fdwrite(1,"     e_ptr64tohex: %s\n",str);
+}
 
 int main(int argc, char **argv, char **envp)
 {
-	char	str[100],x,y;
-	uint64_t g;
+	uint64_t x;
 
-	x = (((((0x0A & 0x0F) + 0x06) & 0x30) * 7) >> 4) + 0x0A + 0x30;
-	y = (((((0x0B & 0x0F) + 0x06) & 0x30) * 7) >> 4) + 0x0B + 0x30;
-	fdwrite(1,"0xAB [%c%c] <0x%02x> %i\n",x,y,0,'A' - '9' - 1);
+	foo(0x1a203b405c6d7e8f);
+	foo(0x1234567890abcdef);
+	foo(0xabcdef896e5a23f0);
+	foo((uint64_t)&main);
 
-	g = 0x090a090a0a09090a;
-	fdwrite(1,"%016lx\n",g);
-	g = g + 0x0606060606060606;
-	fdwrite(1,"%016lx\n",g);
-	g = g & 0x1010101010101010;
-	fdwrite(1,"%016lx\n",g);
-	g = (g * 7) >> 4;
-	fdwrite(1,"%016lx\n",g);
-	g = g + 0x090a090a0a09090a;
-	fdwrite(1,"%016lx\n",g);
-	g = g + 0x3030303030303030;
-	fdwrite(1,"%016lx\n\n",g);
-
-	fdwrite(1,"libc(%%016lX): %016lX\n",0x1a203b405c6d7e8f);
-	a_ptr64tohex((void*)0x1a203b405c6d7e8f, str);
-	fdwrite(1,"a_ptr64tohex: %s\n",str);
-	b_ptr64tohex((void*)0x1a203b405c6d7e8f, str);
-	fdwrite(1,"b_ptr64tohex: %s\n",str);
-	c_ptr64tohex((void*)0x1a203b405c6d7e8f, str);
-	fdwrite(1,"c_ptr64tohex: %s\n",str);
-	fdwrite(1,"c_ptr64tohex:  1   1   1 1 1 1\n\n");
-
-	fdwrite(1,"libc(%%016lX): %016lX\n",0x1234567890abcdef);
-	a_ptr64tohex((void*)0x1234567890abcdef, str);
-	fdwrite(1,"a_ptr64tohex: %s\n",str);
-	b_ptr64tohex((void*)0x1234567890abcdef, str);
-	fdwrite(1,"b_ptr64tohex: %s\n",str);
-	c_ptr64tohex((void*)0x1234567890abcdef, str);
-	fdwrite(1,"c_ptr64tohex: %s\n\n",str);
-
-	fdwrite(1,"libc(%%016lX): %016lX\n",0xabcdef896e5a23f0);
-	a_ptr64tohex((void*)0xabcdef896e5a23f0, str);
-	fdwrite(1,"a_ptr64tohex: %s\n",str);
-	b_ptr64tohex((void*)0xabcdef896e5a23f0, str);
-	fdwrite(1,"b_ptr64tohex: %s\n",str);
-	c_ptr64tohex((void*)0xabcdef896e5a23f0, str);
-	fdwrite(1,"c_ptr64tohex: %s\n\n",str);
-
-	fdwrite(1,"libc(%%016lX): %016lX\n",(uint64_t)&main);
-	a_ptr64tohex(main, str);
-	fdwrite(1,"a_ptr64tohex: %s\n",str);
-	b_ptr64tohex(main, str);
-	fdwrite(1,"b_ptr64tohex: %s\n",str);
-	c_ptr64tohex(main, str);
-	fdwrite(1,"c_ptr64tohex: %s\n",str);
+	for(int i=0;i<16;i++)
+	{
+		fdwrite(1,"%s   %2i   %X:   ",bin2str(i,4),i,i);
+		x = test((uint64_t)i<<60);
+		fdwrite(1,"%s\n",bin2str(x,64));
+	}
 }
