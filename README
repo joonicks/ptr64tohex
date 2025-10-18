@@ -5,7 +5,7 @@ increase efficiency by reducing codesize or removing branches.
 When converting a binary to hex string, I figured out that its
 possible to do it with binary logic instead of if statements.
 
-Normally the code would be (and the gcc compiler does a good job with);
+Normally the code would be;
 
 	a = ... & 0xF
 	if (a > 9)
@@ -13,36 +13,53 @@ Normally the code would be (and the gcc compiler does a good job with);
 	else
 		char = '0' + a;
 
+	But the if statement creates an unpredictable branch
+	that tanks performance.
+
+With logic you can do the following instead
+(and the gcc compiler does a good job with);
+
+	a = ... & 0xF
+	char = '0' + c + ((unsigned)(9 - c) >> 29);
+
+The different implementations is as follows:
+
 x_libc_ptr64tohex:
-	avg ~120 clock cycles
+	~110-115 clock cycles
 	Just a simple wrapper for libc sprintf("%016lX")
 
 c_noob_ptr64tohex:
-	avg ~160 clock cycles, unpredictable
+	~160 clock cycles
 	What a noob might make without using any lookup table
 
 c_luta_ptr64tohex:
-	avg ~20 clock cycles, down to 16
+	~22 clock cycles
 	Based on a lookup table instead
 
 c_simp_ptr64tohex:
-	avg ~28 clock cycles, down to 24
-	Simple loop based non lookup
+	~25 clock cycles
+	Simple loop based conversion using logic instead of lookup
+	a = nibble & 15
+	char = ((((a + 6) & 16) >> 4) * 7) + a + '0';
 
 c_nobr_ptr64tohex:
-	avg ~20 clock cycles, down to 16
+	~9.5 clock cycles
 	Branchless, all low nibbles then all high nibbles done at once
 	gcc compiler uses extra instructions to improve speed
 
+c_simd_ptr64tohex: (by dzaima)
+	~4.5 clock cycles
+	SIMD version using SSE instructions
+
 a_noob_ptr64tohex:
-	avg ~160 clock cycles, unpredictable
+	~160 clock cycles
 	Equivalent to c_noob slightly tweaked non lookup
 
 a_bext_ptr64tohex:
-	avg ~27 clock cycles, down to 20
+	~27 clock cycles
 	Loop 1 nibble at a time using bextr instruction
 
 a_nobr_ptr64tohex:
-	avg ~20 clock cycles, down to 16
+	~8 clock cycles
 	Assembly version of c_nobr
 	Better ordering of instructions could improve speed
