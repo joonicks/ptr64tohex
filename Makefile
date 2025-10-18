@@ -1,6 +1,6 @@
 
 
-CFLAGS = -Os -Wall -fomit-frame-pointer -march=native -mtune=native
+CFLAGS = -Os -Wall -fomit-frame-pointer -march=native -mtune=native -fcf-protection=none
 
 OBJ = simple.o io.o assembly.o
 

@@ -49,6 +49,7 @@ void c_noob_ptr64tohex(char *dst, uint64_t value);
 void c_luta_ptr64tohex(char *dst, uint64_t value);
 void c_simp_ptr64tohex(char *dst, uint64_t value);
 void c_nobr_ptr64tohex(char *dst, uint64_t value);
+void c_simd_ptr64tohex(char *dst, uint64_t value);
 
 /*
 ** Various assembler implementation (assembly.S)
@@ -67,34 +68,41 @@ void x_libc_ptr64tohex(char *dst, uint64_t value)
 
 typedef void (hexfunc)(char *, uint64_t);
 
-void bar(const char *name, hexfunc func, uint64_t value)
+void bar(const char *name, hexfunc func, uint64_t value, const char *credit)
 {
-	uint64_t r, t1, t2, sum;
-	uint32_t i, min, max, t;
+	uint64_t r[100000];
+	uint64_t t1, t2;
+	uint32_t i, t;
 
-	for(min=-1,max=0,sum=0,i=100000;i>0;i--)
+	for(i=0;i<100000;i++)
 	{
-		r = rand64();t1 = rdtsc();
-		func(str,r);
-		t2 = rdtsc();t = t2 - t1;sum += t;
-		if (t > max)max = t;
-		if (t < min)min = t;
+		r[i] = rand64();
 	}
+
+	t1 = rdtsc();
+	for(i=0;i<100000;i++)
+	{
+		func(str,r[i]);
+	}
+	t2 = rdtsc();
+	t = t2 - t1;
+
 	func(str,value);
-	fdwrite(1,"%s: %s (min %d, max %d, avg ~%d)\n",name,str,min,max,(sum/100000));
+	fdwrite(1,"%s: %s (avg ~%.2f)%s\n",name,str,((double)t/100000),(credit == NULL) ? "": credit);
 }
 
 void foo(uint64_t value)
 {
-	bar("     libc(%016lX)",x_libc_ptr64tohex,value);
-	bar("c_noob_ptr64tohex",c_noob_ptr64tohex,value);
-	bar("c_luta_ptr64tohex",c_luta_ptr64tohex,value);
-	bar("c_simp_ptr64tohex",c_simp_ptr64tohex,value);
-	bar("c_nobr_ptr64tohex",c_nobr_ptr64tohex,value);
-	bar("a_noob_ptr64tohex",a_noob_ptr64tohex,value);
-	bar("a_luta_ptr64tohex",a_luta_ptr64tohex,value);
-	bar("a_bext_ptr64tohex",a_bext_ptr64tohex,value);
-	bar("a_nobr_ptr64tohex",a_nobr_ptr64tohex,value);
+	bar("     libc(%016lX)",x_libc_ptr64tohex,value,NULL);
+	bar("c_noob_ptr64tohex",c_noob_ptr64tohex,value,NULL);
+	bar("c_luta_ptr64tohex",c_luta_ptr64tohex,value,NULL);
+	bar("c_simp_ptr64tohex",c_simp_ptr64tohex,value,NULL);
+	bar("c_nobr_ptr64tohex",c_nobr_ptr64tohex,value,NULL);
+	bar("c_simd_ptr64tohex",c_simd_ptr64tohex,value," (dzaima)");
+	bar("a_noob_ptr64tohex",a_noob_ptr64tohex,value,NULL);
+	bar("a_luta_ptr64tohex",a_luta_ptr64tohex,value,NULL);
+	bar("a_bext_ptr64tohex",a_bext_ptr64tohex,value,NULL);
+	bar("a_nobr_ptr64tohex",a_nobr_ptr64tohex,value,NULL);
 
 	fdwrite(1,"%c",'\n');
 }

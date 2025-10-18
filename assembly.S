@@ -8,6 +8,13 @@ test:
 	bextr	rax,rdi,rdx
 	ret
 
+	.globl	bogo
+	.type	bogo,@function
+bogo:
+	mov	edx, 0x043C
+	bextr	rax,rdi,rdx
+	ret
+
 	.align	64
 	.globl	a_nobr_ptr64tohex
 	.type	a_nobr_ptr64tohex,@function

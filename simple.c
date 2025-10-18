@@ -30,7 +30,6 @@ void c_noob_ptr64tohex(char *dst, uint64_t value)
 */
 void c_luta_ptr64tohex(char *dst, uint64_t value)
 {
-	uint8_t c;
 	char    *d;
 
 	dst[16] = 0;
@@ -99,3 +98,16 @@ void c_nobr_ptr64tohex(char *dst, uint64_t value)
 	dst[14] = c.pch[0];
 	dst[16] = 0;
 }
+
+#include <immintrin.h>
+
+void c_simd_ptr64tohex(char *dst, uint64_t value)
+{
+	__m128i lut = _mm_setr_epi8('0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F');
+	uint64_t mask = 0x0F0F0F0F0F0F0F0F;
+	__m128i nibbles = _mm_set_epi64x(value & mask, value>>4 & mask);
+	__m128i idxs = _mm_shuffle_epi8(nibbles, _mm_setr_epi8(7,15,6,14,5,13,4,12,3,11,2,10,1,9,0,8));
+	__m128i results = _mm_shuffle_epi8(lut, idxs);
+	_mm_storeu_si128((void*) dst, results);
+}
+
