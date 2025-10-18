@@ -1,4 +1,6 @@
 
+Source: https://github.com/joonicks/ptr64tohex
+
 This is an experiment in assembly/C programming trying to
 increase efficiency by reducing codesize or removing branches.
 
@@ -22,44 +24,46 @@ With logic you can do the following instead
 	a = ... & 0xF
 	char = '0' + c + ((unsigned)(9 - c) >> 29);
 
+--------------------------------------------------------------------------------------------------
+
 The different implementations is as follows:
 
-x_libc_ptr64tohex:
+x_libc:
 	~110-115 clock cycles
 	Just a simple wrapper for libc sprintf("%016lX")
 
-c_noob_ptr64tohex:
+c_noob:
 	~160 clock cycles
 	What a noob might make without using any lookup table
 
-c_luta_ptr64tohex:
+c_luta:
 	~22 clock cycles
 	Based on a lookup table instead
 
-c_simp_ptr64tohex:
+c_simp:
 	~25 clock cycles
 	Simple loop based conversion using logic instead of lookup
 	a = nibble & 15
 	char = ((((a + 6) & 16) >> 4) * 7) + a + '0';
 
-c_nobr_ptr64tohex:
+c_nobr:
 	~9.5 clock cycles
 	Branchless, all low nibbles then all high nibbles done at once
 	gcc compiler uses extra instructions to improve speed
 
-c_simd_ptr64tohex: (by dzaima)
+c_simd: (by dzaima)
 	~4.5 clock cycles
 	SIMD version using SSE instructions
 
-a_noob_ptr64tohex:
+a_noob:
 	~160 clock cycles
 	Equivalent to c_noob slightly tweaked non lookup
 
-a_bext_ptr64tohex:
+a_bext:
 	~27 clock cycles
 	Loop 1 nibble at a time using bextr instruction
 
-a_nobr_ptr64tohex:
+a_nobr:
 	~8 clock cycles
 	Assembly version of c_nobr
 	Better ordering of instructions could improve speed
