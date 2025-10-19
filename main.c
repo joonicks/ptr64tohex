@@ -45,6 +45,7 @@ uint64_t rdtsc(void)
 /*
 ** Various C implementations (simple.c)
 */
+void x_libc_ptr64tohex(char *dst, uint64_t value); /* just a simple wrapper for libc sprintf */
 void c_noob_ptr64tohex(char *dst, uint64_t value);
 void c_luta_ptr64tohex(char *dst, uint64_t value);
 void c_simp_ptr64tohex(char *dst, uint64_t value);
@@ -58,13 +59,10 @@ void a_bext_ptr64tohex(char *dst, uint64_t value);
 void a_noob_ptr64tohex(char *dst, uint64_t value);
 void a_nobr_ptr64tohex(char *dst, uint64_t value);
 void a_luta_ptr64tohex(char *dst, uint64_t value);
+void a_luro_ptr64tohex(char *dst, uint64_t value);
+void a_ssse_ptr64tohex(char *dst, uint64_t value);
 
 char	str[100];
-
-void x_libc_ptr64tohex(char *dst, uint64_t value)
-{
-	sprintf(dst,"%016lX",value);
-}
 
 typedef void (hexfunc)(char *, uint64_t);
 
@@ -101,8 +99,10 @@ void foo(uint64_t value)
 	bar("c_simd_ptr64tohex",c_simd_ptr64tohex,value," (dzaima)");
 	bar("a_noob_ptr64tohex",a_noob_ptr64tohex,value,NULL);
 	bar("a_luta_ptr64tohex",a_luta_ptr64tohex,value,NULL);
+	bar("a_luro_ptr64tohex",a_luro_ptr64tohex,value,NULL);
 	bar("a_bext_ptr64tohex",a_bext_ptr64tohex,value,NULL);
 	bar("a_nobr_ptr64tohex",a_nobr_ptr64tohex,value,NULL);
+	bar("a_ssse_ptr64tohex",a_ssse_ptr64tohex,value,NULL);
 
 	fdwrite(1,"%c",'\n');
 }

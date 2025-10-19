@@ -1,7 +1,13 @@
-#include <unistd.h>
-#include <stdio.h>
 #include <stdint.h>
-#include <string.h>
+#include <stdio.h>
+
+/*
+**  Wrapper for libc sprintf
+*/
+void x_libc_ptr64tohex(char *dst, uint64_t value)
+{
+	sprintf(dst,"%016lX",value);
+}
 
 /*
 **  Naive noob implementation
