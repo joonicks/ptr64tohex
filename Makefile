@@ -7,8 +7,8 @@ OBJ = simple.o io.o assembly.o
 main:		main.c $(OBJ)
 		gcc $(CFLAGS) -o main main.c $(OBJ)
 
-assembly.o:	assembly.S
-		gcc -c assembly.S
+assembly.o:	assembly.s
+		gcc -c assembly.s
 
 simple.o:	simple.c
 		gcc $(CFLAGS) -c simple.c
