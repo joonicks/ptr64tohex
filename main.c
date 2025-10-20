@@ -26,7 +26,7 @@ char *bin2str(uint64_t n, int lim)
 	f = f << (lim-1);
 	for(i=0;i<lim;i++)
 	{
-		*(p++) = ((f & n) == 0) ? '0' : '1';
+		*(p++) = '0' + ((f & n) != 0);
 		f = f >> 1;
 	}
 	*p = 0;
